@@ -1,0 +1,26 @@
+.pokemon-name:first-letter {
+    text-transform:capitalize;
+}
+.pokemon-body {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: '18rem';
+    align-content: space-around;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 2em;
+    padding-top: 1em;
+}
+.mainRow {
+    display: flex;
+    align-content: space-around;
+}
+.brokenWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} 
+.navbar-toggler {
+    display: none !important;
+}
