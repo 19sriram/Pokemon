@@ -12,15 +12,16 @@ export const fetchPokemonData = async (
   limit?: number,
   offset?: number
 ) => {
-  const resp = await axios
+  try {
+    const resp = await axios
     .get(url, {
-      params: {
-        limit: limit,
-        offset: offset,
-      },
-    })
-    .catch(function (error) {
-      console.error(error.response);
-    });
-  return resp;
+          params: {
+            limit: limit,
+            offset: offset,
+          },
+        })
+      return resp;
+  } catch (error){
+    return error;
+  }
 };
