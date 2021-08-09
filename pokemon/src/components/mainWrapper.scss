@@ -1,7 +1,7 @@
-.pokemon-name:first-letter {
+.pokemonName:first-letter {
     text-transform:capitalize;
 }
-.pokemon-body {
+.pokemonBody {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -11,16 +11,15 @@
     gap: 12px;
     margin-top: 2em;
     padding-top: 1em;
+    img {
+        min-height: 100px;
+    }
 }
 .mainRow {
     display: flex;
     align-content: space-around;
 }
-.brokenWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-} 
+
 .navbar-toggler {
     display: none !important;
 }

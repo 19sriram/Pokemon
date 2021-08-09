@@ -1,7 +1,7 @@
 import axios from "./axios";
 
 /**
- * 
+ *
  * @param url : Endpoint
  * @param limit : Number of list to be fetched
  * @param offset : Number to be next offset after first fetch
@@ -12,15 +12,15 @@ export const fetchPokemonData = async (
   limit?: number,
   offset?: number
 ) => {
-   
-
-  const resp = await axios.get(url, {
-    params: {
-      limit: limit,
-      offset: offset,
-    },
-  }).catch(function (error){
+  const resp = await axios
+    .get(url, {
+      params: {
+        limit: limit,
+        offset: offset,
+      },
+    })
+    .catch(function (error) {
       console.error(error.response);
-  });
+    });
   return resp;
 };

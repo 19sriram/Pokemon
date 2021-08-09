@@ -1,65 +1,70 @@
 import { useState, useEffect, Fragment } from "react";
-import { fetchPokemonData } from "./common/api";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Nav,
-  Navbar,
-  Row,
-} from "react-bootstrap";
-import Loader from "../components/common/loader";
-import { brokenImageSource, pokemonLogo } from "./common/const";
-import "./mainWrapper.css";
-function MainWrapper() {
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import Loader from "./loader/loader";
+import HeaderComponent from "../components/headerComponent/headerComponent";
+import Broken from "./brokenScreen/brokenScreen";
+import { fetchPokemonData } from "./common/api";
+import SlideDrawer from "./sideDrawer/sideDrawer";
+
+import "./mainWrapper.scss";
+
+export default function MainWrapper() {
   const [allPokemonList, setAllPokemonList] = useState([] as any);
-  const [broken,setBroken] = useState(false as boolean);
-  const [isLoading, setIsLoading] = useState(false as boolean);
+  const [broken, setBroken] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedPokemon, setSelectedPokemon] = useState([] as any);
-  const [nextPageURL, setNextPageURL] = useState("" as string);
-  const [prevPageURL, setPrevPageURL] = useState("" as string);
+  const [nextPageURL, setNextPageURL] = useState("");
+  const [prevPageURL, setPrevPageURL] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   /**
    * Initial Fetch
-   * Gets all pokemon from baseURL
+   * Fetches data as per url, limit and offset
+   * {url: string, limit: number, offset: number}
+   * fetchData(url,limit, offset)
    */
 
-  const getPokemonData = (url: string, limit?: number, offset?: number) => {
+  const fetchData = (url: string, limit?: number, offset?: number) => {
     try {
       setIsLoading(true);
-   
-    return fetchPokemonData(url, limit, offset);
-    }
-    catch (err) {
+      return fetchPokemonData(url, limit, offset);
+    } catch (err) {
       console.error(err);
       return err;
     }
-    
   };
 
-    /**
+  /**
    *
-   * @param pokemonData : Pokemon list with name and url from intial fetch
+   * @param pokemonData : Pokemon list with name and image from intial fetch
    */
-     const getPokemon = async (pokemonData: string[]) => {
-      setIsLoading(true);
-      let _pokemonObject = await Promise.all(
-        pokemonData.map(async (pokemon: any) => {
-          return getPokemonData(pokemon.url).then((resp:{data:[]}) => resp.data).catch((error:any)=>console.error(error));
-        })
-      );
-      console.log(_pokemonObject);
-      setAllPokemonList(_pokemonObject);
-      setIsLoading(false);
-    };
+  const getPokemon = async (pokemonData: string[]) => {
+    setIsLoading(true);
+    let _pokemonObject = await Promise.all(
+      pokemonData.map(async (pokemon: any) => {
+        return fetchData(pokemon.url)
+          .then((resp: { data: [] }) => resp.data)
+          .catch((error: any) => console.error(error));
+      })
+    );
+    setAllPokemonList(_pokemonObject);
+    setIsLoading(false);
+  };
 
-    
+  /**
+   * Initial Fetch
+   * Fetches 50 records as initial fetch
+   */
+
   useEffect(() => {
-      let _resp = getPokemonData("pokemon", 50);
-      _resp.then(async (response:{data:{next:string, previous: string, results:[]}}) => {
-          if(response && response.data) {
+    setIsLoading(true);
+    fetchData("pokemon", 50)
+      .then(
+        async (response: {
+          data: { next: string; previous: string; results: [] };
+        }) => {
+          if (response && response.data) {
             setNextPageURL(response.data.next);
             setPrevPageURL(response.data.previous);
             await getPokemon(response.data.results);
@@ -67,35 +72,47 @@ function MainWrapper() {
             setIsLoading(false);
             setBroken(true);
           }
-      }).catch((error:any)=>console.error(error));
-    
-  },[]);
-
+        }
+      )
+      .catch((error: any) => console.error(error));
+  }, []);
 
   /**
    * Get next url from initial fetch
    */
   const getNext = async () => {
-    await getPokemonData(nextPageURL).then(async (resp:{data:{next:string, previous: string, results:[]}}) => {
-      if (resp.data) {
-        setNextPageURL(resp.data.next);
-        setPrevPageURL(resp.data.previous);
-        await getPokemon(resp.data.results);
-      }
-    }).catch((error:any)=>console.error(error));
+    await fetchData(nextPageURL)
+      .then(
+        async (resp: {
+          data: { next: string; previous: string; results: [] };
+        }) => {
+          if (resp.data) {
+            setNextPageURL(resp.data.next);
+            setPrevPageURL(resp.data.previous);
+            await getPokemon(resp.data.results);
+          }
+        }
+      )
+      .catch((error: any) => console.error(error));
   };
 
   /**
    * Get previous url from intial fetch
    */
   const getPrevious = async () => {
-    await getPokemonData(prevPageURL).then(async (resp:{data:{next:string, previous: string, results:[]}}) => {
-      if (resp.data) {
-        setNextPageURL(resp.data.next);
-        setPrevPageURL(resp.data.previous);
-        await getPokemon(resp.data.results);
-      }
-    }).catch((error:any)=>console.error(error));
+    await fetchData(prevPageURL)
+      .then(
+        async (resp: {
+          data: { next: string; previous: string; results: [] };
+        }) => {
+          if (resp.data) {
+            setNextPageURL(resp.data.next);
+            setPrevPageURL(resp.data.previous);
+            await getPokemon(resp.data.results);
+          }
+        }
+      )
+      .catch((error: any) => console.error(error));
   };
 
   /**
@@ -104,102 +121,81 @@ function MainWrapper() {
    * Sets selected pokemon value from AllPokemonList
    */
   const onPokemonSelect = (e: any) => {
-    console.log(1);
     let _selectedPokemon = allPokemonList.filter(
-      (item: { name: string }) => item.name === e.currentTarget.textContent
+      (item: { name: string }) => item.name === e.target.id
     );
     setSelectedPokemon(_selectedPokemon);
+    setDrawerOpen(!drawerOpen);
   };
 
   return (
     <div className="mainWrapper">
       <Container fluid>
-        <Navbar bg="light" expand="lg" sticky="top" className="controllers">
-          <Container>
-            <Navbar.Brand>
-              <div>
-                <img
-                  src={pokemonLogo}
-                  width="100px"
-                  alt="pokemon-logo"
-                />
-              </div>
-            </Navbar.Brand>
-            
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav"></Navbar.Collapse>
-            <Nav style={{ display: (isLoading && !broken) ? "none" : "block" }}>
-              <Button
-                variant="primary"
-                disabled={!prevPageURL}
-                onClick={getPrevious}
-                style={{marginRight:'1em'}}
-              >
-                Prev
-              </Button>
-              <Button
-                variant="danger"
-                disabled={!nextPageURL}
-                onClick={getNext}
-              >
-                Next
-              </Button>
-            </Nav>
-          </Container>
-        </Navbar>
+        <HeaderComponent
+          isLoading={isLoading}
+          broken={broken}
+          prevPageURL={prevPageURL}
+          nextPageURL={nextPageURL}
+          getPrevious={getPrevious}
+          getNext={getNext}
+          drawerOpen={drawerOpen}
+        />
         <Row className="mainRow">
-          {!broken ?
-          <Fragment>
-          {isLoading ? (
-            <Loader />
-          ) : (
+          {!broken ? (
             <Fragment>
-              <Container fluid>
-                <Row>
-                  <Col>{<Fragment></Fragment>}</Col>
-                </Row>
-              </Container>
-              {allPokemonList &&
-                allPokemonList.map((pokemon: any) => {
-                  return (
-                    <Col xs={6} lg={3} key={pokemon.id} >
-                      <Card
-                        className="pokemon-body"
-                        key={pokemon.id}
-                        onClickCapture={(e) => onPokemonSelect(e)}
-                      >
-                        <LazyLoadImage
-                          src={pokemon.sprites.other.dream_world.front_default || pokemon.sprites.front_shiny}
-                          effect="blur"
-                          width="100"
-                          height="100"
-                          alt={pokemon.name}
-                          key={pokemon.id}
-                        ></LazyLoadImage>
-                        <Card.Body>
-                          <Card.Title className={"pokemon-name"}>
-                            {pokemon.name}
-                          </Card.Title>
-                          <Button onClick={() => onPokemonSelect}>
-                            Pokemon GO
-                          </Button>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  );
-                })}
+              {isLoading ? (
+                <Loader />
+              ) : (
+                <Fragment>
+                  <SlideDrawer
+                    show={drawerOpen}
+                    selectedPokemon={selectedPokemon[0] || []}
+                  />
+                  <div
+                    id="backdrop"
+                    style={{ display: drawerOpen ? "block" : "none" }}
+                    onClick={() => setDrawerOpen(false)}
+                  />
+
+                  {allPokemonList &&
+                    allPokemonList.map((pokemon: any) => {
+                      return (
+                        <Col xs={6} lg={3} key={pokemon.id}>
+                          <Card className="pokemonBody" key={pokemon.id}>
+                            <LazyLoadImage
+                              src={
+                                pokemon.sprites.other.dream_world
+                                  .front_default || pokemon.sprites.front_shiny
+                              }
+                              effect="blur"
+                              width="100"
+                              height="100"
+                              alt={pokemon.name}
+                              key={pokemon.id}
+                            ></LazyLoadImage>
+                            <Card.Body>
+                              <Card.Title className={"pokemonName"}>
+                                {pokemon.name}
+                              </Card.Title>
+                              <Button
+                                onClick={onPokemonSelect}
+                                id={pokemon.name}
+                              >
+                                Pokémon GO
+                              </Button>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      );
+                    })}
+                </Fragment>
+              )}
             </Fragment>
+          ) : (
+            <Broken />
           )}
-          </Fragment>
-          : <div className='brokenWrapper'>
-            <img src={brokenImageSource} alt='something is broken'/>
-            <h2>Something is broken</h2>
-          </div>
-}
         </Row>
       </Container>
     </div>
   );
 }
-
-export default MainWrapper;
