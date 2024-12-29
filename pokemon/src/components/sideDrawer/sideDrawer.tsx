@@ -1,4 +1,4 @@
-import { LazyLoadImage } from "react-lazy-load-image-component";
+
 import "./sideDrawer.scss";
 import Broken from "../brokenScreen/brokenScreen";
 import { Col, Container, Form, Row } from "react-bootstrap";
@@ -14,18 +14,19 @@ export default function SlideDrawer(props: SideDrawerProps) {
         <Container fluid>
           <Row>
             <Col>
-              <LazyLoadImage
+              <img
+              loading="lazy"
                 src={
                   selectedPokemon.sprites.other.dream_world.front_default ||
                   selectedPokemon.sprites.front_shiny
                 }
-                effect="blur"
+                
                 width="100"
                 height="100"
                 alt={selectedPokemon?.name}
                 key={selectedPokemon?.id}
                 id="pokemonImg"
-              ></LazyLoadImage>
+              />
 
               <Form>
                 <Form.Group as={Row} className="mb-3">

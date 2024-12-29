@@ -7,7 +7,7 @@ import axios from "./axios";
  * @param offset : Number to be next offset after first fetch
  * @returns : List of Pokemon with name and url {name: string, url: string}
  */
-export const fetchPokemonData = async (
+export const fetchPokemon = async (
   url: string,
   limit?: number,
   offset?: number

@@ -1,12 +1,11 @@
 import "./loader.scss";
 
-export default function Loader() {
-  return (
+export const Loader=()=> (
+  
     <div className="center-on-page">
        <h2>Loading...</h2>
       <div className="pokeball">
         <div className="pokeball__button"></div>
       </div>
     </div>
-  );
-}
+);

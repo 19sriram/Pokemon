@@ -1,9 +1,10 @@
-import React from 'react';
-import MainWrapper from './components/mainWrapper.tsx';
+import MainWrapper from "./components/mainWrapper";
+
 
 function App() {
   return (
     <>
+    
       <MainWrapper/>
     </>
     );
