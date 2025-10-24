@@ -1,5 +1,5 @@
 import { brokenImageSource } from "../common/const";
-import "./brokenScreen.scss";
+import "./brokenScreen.sass";
 
 export default function Broken() {
   return (

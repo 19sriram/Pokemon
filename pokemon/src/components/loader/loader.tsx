@@ -1,4 +1,4 @@
-import "./loader.scss";
+import "./loader.sass";
 
 export const Loader=()=> (
   

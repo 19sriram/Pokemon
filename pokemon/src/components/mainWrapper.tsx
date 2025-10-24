@@ -10,7 +10,7 @@ import { Loader } from "./loader/loader";
 import PokemonCard from "./pokemonCard/pokemonCard";
 
 export default function MainWrapper() {
-  const [allPokemonList, setAllPokemonList] = useState([] as any);
+  const [allPokemonList, setAllPokemonList] = useState<Pokemon[]>([]);
   const [broken, setBroken] = useState(false);
   const [isLoading, startTransition] = useTransition();
   const [selectedPokemon, setSelectedPokemon] = useState([] as any);
@@ -107,26 +107,31 @@ export default function MainWrapper() {
    * @param e :Event
    * Sets selected pokemon value from AllPokemonList
    */
-  const onPokemonSelect = (e: any) => {
+  const onPokemonSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
     let _selectedPokemon = allPokemonList.filter(
-      (item: { name: string }) => item.name === e.target.id
+      (item: Pokemon) => item.name === e.currentTarget.id
     );
     setSelectedPokemon(_selectedPokemon);
     setDrawerOpen(!drawerOpen);
   };
 
+  const MemoizedHeader = useMemo(() => (
+  <HeaderComponent
+    isLoading={isLoading}
+    broken={broken}
+    prevPageURL={prevPageURL}
+    nextPageURL={nextPageURL}
+    getPrevious={getPrevious}
+    getNext={getNext}
+    drawerOpen={drawerOpen}
+  />
+), [isLoading, broken, prevPageURL, nextPageURL, getPrevious, getNext, drawerOpen]);
+
   return (
     <div className="mainWrapper">
       <Container fluid>
-        <HeaderComponent
-          isLoading={isLoading}
-          broken={broken}
-          prevPageURL={prevPageURL}
-          nextPageURL={nextPageURL}
-          getPrevious={getPrevious}
-          getNext={getNext}
-          drawerOpen={drawerOpen}
-        />
+
+        {MemoizedHeader}
         <Row className="mainRow">
           <Fragment>
             {
