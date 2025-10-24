@@ -1,6 +1,7 @@
 import { Button, Container, Nav, Navbar } from "react-bootstrap";
 import { pokemonLogo } from "../common/const";
 import { HeaderProps } from "./interface";
+import { memo } from "react";
 // import { memo } from "react";
 
 function HeaderComponent(props: HeaderProps) {
@@ -23,7 +24,7 @@ function HeaderComponent(props: HeaderProps) {
   //   );
 
   //const MemoLogoComponent = memo(LogoComponent);
-
+  console.log('loading header..')
   return (
     <Navbar bg="light" expand="lg" sticky="top" className="controllers">
       <Container>
@@ -65,4 +66,4 @@ function HeaderComponent(props: HeaderProps) {
   );
 }
 
-export default HeaderComponent;
+export default memo(HeaderComponent);

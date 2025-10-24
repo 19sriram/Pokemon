@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Col, Card, Button } from "react-bootstrap";
 
 
@@ -39,4 +40,4 @@ const PokemonCard = (props: { allPokemonList: any; onPokemonSelect: any; }) => {
     );
 };
 
-export default PokemonCard;
+export default memo(PokemonCard);

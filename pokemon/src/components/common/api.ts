@@ -7,11 +7,18 @@ import axios from "./axios";
  * @param offset : Number to be next offset after first fetch
  * @returns : List of Pokemon with name and url {name: string, url: string}
  */
+interface PokemonAPIResponse {
+  data: any;
+  next: string | null;
+  previous: string | null;
+  results: { name: string; url: string }[];
+}
+
 export const fetchPokemon = async (
   url: string,
   limit?: number,
   offset?: number
-) => {
+):Promise<PokemonAPIResponse> => {
   try {
     const resp = await axios
     .get(url, {
@@ -20,8 +27,8 @@ export const fetchPokemon = async (
             offset: offset,
           },
         })
-      return resp;
+      return resp as unknown as PokemonAPIResponse;
   } catch (error){
-    return error;
+    return error as unknown as PokemonAPIResponse;;
   }
 };

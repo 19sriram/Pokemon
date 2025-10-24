@@ -1,16 +1,15 @@
 import ReactDOM from 'react-dom/client';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import "./index.css";
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import App from './App';
+
 
 <script
   src="https://unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js"
   crossOrigin=''></script>
   
-  const root = ReactDOM.createRoot(document.getElementById('root'));
+  const root = ReactDOM.createRoot(document.getElementById('root')!);
   
   root.render(<React.StrictMode>
     <App />

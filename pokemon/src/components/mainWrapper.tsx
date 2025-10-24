@@ -1,15 +1,21 @@
-import { useState, useEffect, Fragment, Suspense, useTransition } from "react";
+import { useState, useEffect, Fragment, Suspense, useTransition, useMemo, useCallback } from "react";
 import { Container, Row } from "react-bootstrap";
 import HeaderComponent from "../components/headerComponent/headerComponent";
 import Broken from "./brokenScreen/brokenScreen";
 import { fetchPokemon } from "./common/api";
 import SlideDrawer from "./sideDrawer/sideDrawer";
 
-import "./mainWrapper.scss";
+import "./mainWrapper.sass";
 import { Loader } from "./loader/loader";
 import PokemonCard from "./pokemonCard/pokemonCard";
+import React from "react";
 
-export default function MainWrapper() {
+interface Pokemon {
+  name: string;
+}
+const MemoizedHeader = React.memo(HeaderComponent);
+
+const MainWrapper=()=> {
   const [allPokemonList, setAllPokemonList] = useState<Pokemon[]>([]);
   const [broken, setBroken] = useState(false);
   const [isLoading, startTransition] = useTransition();
@@ -23,27 +29,57 @@ export default function MainWrapper() {
    *
    * @param pokemonData : Pokemon list with name and image from intial fetch
    */
-  const getPokemon = async (pokemonData: { url: string; }[]) => {
-    startTransition(async () => {
-      try {
+  const getPokemon = useCallback(async (pokemonData: { url: string; }[]) => {
+    startTransition(() => {
+      (async () => {
+        try {
+          const _pokemonPromises = pokemonData.map(async (pokemon: { url: string }) => {
+            let url = pokemon.url;
+            return fetchPokemon(url)
+              .then((resp: any) => (resp as { data: any[] }).data)
+              .catch((error: any) => {
+                console.error(error);
+                return null;
+              });
+          });
 
-        const _pokemonPromises = pokemonData.map(async (pokemon: { url: string }) => {
-          let url = pokemon.url;
-          return fetchPokemon(url)
-            .then((resp: any) => (resp as { data: any[] }).data)
-            .catch((error: any) => {
-              console.error(error);
-              return null; // Return null or handle the error appropriately
-            });
-        });
-
-        const _pokemonObject: any = await Promise.all(_pokemonPromises.filter((item: any) => item !== null));
-        setAllPokemonList(_pokemonObject);
-      } catch (error) {
-        console.error(error);
-      }
+          const _pokemonObject: any = await Promise.all(_pokemonPromises.filter((item: any) => item !== null));
+          setAllPokemonList(_pokemonObject);
+        } catch (error) {
+          console.error(error);
+        }
+      })();
     });
-  };
+  }, []);
+
+   const fetchPage = useCallback(async (pageUrl: string) => {
+    try {
+      const resp = await fetchPokemon(pageUrl);
+      if (resp?.data) {
+        const { next, previous, results } = resp.data;
+        setNextPageURL(next);
+        setPrevPageURL(previous);
+        await getPokemon(results);
+      }
+    } catch (error: any) {
+      console.log(error);
+    }
+   }, [getPokemon]);
+
+
+    /**
+   * Get next url from initial fetch
+   */
+  const getNext = useCallback(async ()=>{
+    fetchPage(nextPageURL);
+  },[fetchPage,nextPageURL]);
+
+  /**
+   * Get previous url from intial fetch
+   */
+  const getPrevious =  useCallback(async ()=>{
+    await fetchPage(prevPageURL);
+  },[fetchPage,prevPageURL]);
 
   /**
    * Initial Fetch
@@ -51,7 +87,7 @@ export default function MainWrapper() {
    */
 
   useEffect(() => {
-    startTransition(async () => {
+    startTransition(() => {
       fetchPokemon("pokemon", 50)
         .then(
           async (response: any) => {
@@ -69,32 +105,8 @@ export default function MainWrapper() {
     });
   }, []);
 
-  const fetchPage = async (pageUrl: string) => await fetchPokemon(pageUrl)
-    .then(
-      async (resp: any) => {
-        if (resp.data) {
-          const { next, previous, results } = resp.data;
-          setNextPageURL(next);
-          setPrevPageURL(previous);
+ 
 
-          await getPokemon(results);
-        }
-      }
-    )
-    .catch((error: any) => console.error(error));
-  /**
-   * Get next url from initial fetch
-   */
-  const getNext = async () => {
-    fetchPage(nextPageURL);
-  };
-
-  /**
-   * Get previous url from intial fetch
-   */
-  const getPrevious = async () => {
-    fetchPage(prevPageURL);
-  };
 
   useEffect(() => {
     if (isLoading && drawerOpen) {
@@ -107,31 +119,32 @@ export default function MainWrapper() {
    * @param e :Event
    * Sets selected pokemon value from AllPokemonList
    */
-  const onPokemonSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onPokemonSelect = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     let _selectedPokemon = allPokemonList.filter(
       (item: Pokemon) => item.name === e.currentTarget.id
     );
     setSelectedPokemon(_selectedPokemon);
     setDrawerOpen(!drawerOpen);
-  };
+  }, [allPokemonList, drawerOpen]);
 
-  const MemoizedHeader = useMemo(() => (
-  <HeaderComponent
-    isLoading={isLoading}
-    broken={broken}
-    prevPageURL={prevPageURL}
-    nextPageURL={nextPageURL}
-    getPrevious={getPrevious}
-    getNext={getNext}
-    drawerOpen={drawerOpen}
-  />
-), [isLoading, broken, prevPageURL, nextPageURL, getPrevious, getNext, drawerOpen]);
+  
+  // const MemoizedHeader = useMemo(() => (
+    
+  // ), [isLoading, broken, prevPageURL, nextPageURL, getPrevious, getNext, drawerOpen]);
 
   return (
     <div className="mainWrapper">
       <Container fluid>
 
-        {MemoizedHeader}
+        <MemoizedHeader
+      isLoading={isLoading}
+      broken={broken}
+      prevPageURL={prevPageURL}
+      nextPageURL={nextPageURL}
+      getPrevious={getPrevious}
+      getNext={getNext}
+      drawerOpen={drawerOpen}
+    />
         <Row className="mainRow">
           <Fragment>
             {
@@ -166,3 +179,4 @@ export default function MainWrapper() {
     </div>
   );
 }
+export default MainWrapper;

@@ -1,5 +1,5 @@
 
-import "./sideDrawer.scss";
+import "./sideDrawer.sass";
 import Broken from "../brokenScreen/brokenScreen";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import { SideDrawerProps } from "./interfaces";
