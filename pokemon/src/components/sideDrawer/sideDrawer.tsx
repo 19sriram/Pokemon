@@ -4,7 +4,7 @@ import Broken from "../brokenScreen/brokenScreen";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import { SideDrawerProps } from "./interfaces";
 
-export default function SlideDrawer(props: SideDrawerProps) {
+function SlideDrawer(props: SideDrawerProps) {
   const { show, selectedPokemon } = props;
   let drawerClasses = show ? "side-drawer open" : "side-drawer";
 
@@ -91,3 +91,5 @@ export default function SlideDrawer(props: SideDrawerProps) {
     </div>
   );
 }
+
+export default SlideDrawer;
