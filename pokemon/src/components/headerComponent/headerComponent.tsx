@@ -24,7 +24,7 @@ function HeaderComponent(props: HeaderProps) {
   //   );
 
   //const MemoLogoComponent = memo(LogoComponent);
-  console.log('loading header..')
+//  console.log('loading header..')
   return (
     <Navbar bg="light" expand="lg" sticky="top" className="controllers">
       <Container>

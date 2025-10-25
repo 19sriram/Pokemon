@@ -17,7 +17,8 @@ interface PokemonAPIResponse {
 export const fetchPokemon = async (
   url: string,
   limit?: number,
-  offset?: number
+  offset?: number,
+  signal?: any
 ):Promise<PokemonAPIResponse> => {
   try {
     const resp = await axios
@@ -26,8 +27,11 @@ export const fetchPokemon = async (
             limit: limit,
             offset: offset,
           },
+          signal: signal
         })
+        
       return resp as unknown as PokemonAPIResponse;
+      
   } catch (error){
     return error as unknown as PokemonAPIResponse;;
   }

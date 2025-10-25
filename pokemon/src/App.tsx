@@ -1,5 +1,6 @@
 import { Profiler } from "react";
 import MainWrapper from "./components/mainWrapper";
+import FormWrapper from "./components/formWrapper";
 
 
 function onRenderCallback(
@@ -11,7 +12,7 @@ function onRenderCallback(
   commitTime:number,
   interactions:any,
 ) {
-  console.log(id,phase, actualDuration)
+  //console.log(id,phase, actualDuration)
 }
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
     <Profiler id="app" onRender={onRenderCallback}>
     <>
       <MainWrapper/>
+      {/* <FormWrapper/> */}
     </>
     </Profiler>
     );

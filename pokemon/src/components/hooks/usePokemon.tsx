@@ -37,6 +37,7 @@ const usePokemon = (initialLimit = 50) => {
     startTransition(() => {
       (async () => {
         try {
+          console.log('calling new');
           const _pokemonPromises = pokemonData.map(async (pokemon: { url: string }) => {
             let url = pokemon.url;
             return fetchPokemon(url)
@@ -54,6 +55,7 @@ const usePokemon = (initialLimit = 50) => {
         }
       })();
     });
+    return ()=>setAllPokemonList([]);
   }, []);
 
   /**
@@ -61,7 +63,7 @@ const usePokemon = (initialLimit = 50) => {
    */
   const fetchPage = useCallback(async (pageUrl: string) => {
     try {
-      const resp = await fetchPokemon(pageUrl);
+      const resp = await fetchPokemon(pageUrl,);
       if (resp?.data) {
         const { next, previous, results } = resp.data;
         setNextPageURL(next);
@@ -88,8 +90,9 @@ const usePokemon = (initialLimit = 50) => {
    * Initial fetch effect - moved from mainWrapper
    */
   useEffect(() => {
+    const controller = new AbortController();
     startTransition(() => {
-      fetchPokemon("pokemon", initialLimit)
+      fetchPokemon("pokemon", initialLimit,undefined,controller.signal)
         .then(
           async (response: any) => {
             if (response && response.data) {
@@ -104,6 +107,7 @@ const usePokemon = (initialLimit = 50) => {
         )
         .catch((error: any) => console.error(error));
     });
+    return ()=> controller.abort();
   }, [initialLimit, getPokemon]);
 
   // Return clean API

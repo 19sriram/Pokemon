@@ -74,7 +74,7 @@ const MainWrapper=()=> {
         <Row className="mainRow">
           <Fragment>
             {
-              broken && <Broken />
+              // broken && <Broken />
             }
           </Fragment>
           <Fragment>
