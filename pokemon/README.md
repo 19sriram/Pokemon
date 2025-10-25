@@ -1,6 +1,7 @@
 # Pokemon APP
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A fun project to load the pokemon and test ground with latest react hooks and other stuffs. Feel free to fork and enjoy.
+
 
 ## Description
 PUBLIC URL USED: https://pokeapi.co/
