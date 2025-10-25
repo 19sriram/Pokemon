@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useTransition } from "react";
+import { useState, useEffect, useCallback, useTransition, useRef } from "react";
 import { fetchPokemon } from "../common/api";
 
 interface Pokemon {
@@ -30,60 +30,104 @@ const usePokemon = (initialLimit = 50) => {
   const [prevPageURL, setPrevPageURL] = useState("");
   const [isLoading, startTransition] = useTransition();
 
+  // Keep track of current request controller
+  const currentRequestRef = useRef<AbortController | null>(null);
+
   /**
    * Get individual Pokemon details
    */
-  const getPokemon = useCallback(async (pokemonData: { url: string; }[]) => {
+  const getPokemon = useCallback(async (pokemonData: { url: string; }[], signal?: AbortSignal) => {
     startTransition(() => {
       (async () => {
         try {
-          console.log('calling new');
           const _pokemonPromises = pokemonData.map(async (pokemon: { url: string }) => {
             let url = pokemon.url;
-            return fetchPokemon(url)
+
+            return fetchPokemon(url, undefined, undefined, signal)
               .then((resp: any) => (resp as { data: any[] }).data)
               .catch((error: any) => {
-                console.error(error);
+                // Don't log abort errors as they're expected
+                if (error.name !== 'AbortError' && error.code !== 'ERR_CANCELED') {
+                  console.error(error);
+                }
                 return null;
               });
           });
 
-          const _pokemonObject: any = await Promise.all(_pokemonPromises.filter((item: any) => item !== null));
-          setAllPokemonList(_pokemonObject);
-        } catch (error) {
-          console.error(error);
+          const _pokemonObject: any = await Promise.all(_pokemonPromises);
+          const filteredResults = _pokemonObject.filter((item: any) => item !== null);
+          
+          // Only update state if request wasn't aborted
+          if (!signal?.aborted) {
+            setAllPokemonList(filteredResults);
+          }
+        } catch (error: any) {
+          if (error.name !== 'AbortError' && error.code !== 'ERR_CANCELED') {
+            console.error(error);
+          }
         }
       })();
     });
-    return ()=>setAllPokemonList([]);
   }, []);
 
   /**
    * Fetch page data (next/previous)
    */
-  const fetchPage = useCallback(async (pageUrl: string) => {
+  const fetchPage = useCallback(async (pageUrl: string, signal?: AbortSignal) => {
     try {
-      const resp = await fetchPokemon(pageUrl,);
-      if (resp?.data) {
+      const resp = await fetchPokemon(pageUrl, undefined, undefined, signal);
+      if (resp?.data && !signal?.aborted) {
         const { next, previous, results } = resp.data;
         setNextPageURL(next);
         setPrevPageURL(previous);
-        await getPokemon(results);
+        await getPokemon(results, signal);
       }
     } catch (error: any) {
-      console.log(error);
+      if (error.name !== 'AbortError' && error.code !== 'ERR_CANCELED') {
+        console.error('Fetch page error:', error);
+      }
     }
   }, [getPokemon]);
 
   /**
-   * Navigation functions
+   * Navigation functions with abort controller support
    */
   const getNext = useCallback(async () => {
-    fetchPage(nextPageURL);
+    // Abort any previous request
+    if (currentRequestRef.current) {
+      currentRequestRef.current.abort();
+    }
+    
+    // Create new controller for this request
+    const controller = new AbortController();
+    currentRequestRef.current = controller;
+    
+    try {
+      await fetchPage(nextPageURL, controller.signal);
+    } catch (error: any) {
+      if (error.name !== 'AbortError' && error.code !== 'ERR_CANCELED') {
+        console.error('Navigation error:', error);
+      }
+    }
   }, [fetchPage, nextPageURL]);
 
   const getPrevious = useCallback(async () => {
-    await fetchPage(prevPageURL);
+    // Abort any previous request
+    if (currentRequestRef.current) {
+      currentRequestRef.current.abort();
+    }
+    
+    // Create new controller for this request
+    const controller = new AbortController();
+    currentRequestRef.current = controller;
+    
+    try {
+      await fetchPage(prevPageURL, controller.signal);
+    } catch (error: any) {
+      if (error.name !== 'AbortError' && error.code !== 'ERR_CANCELED') {
+        console.error('Navigation error:', error);
+      }
+    }
   }, [fetchPage, prevPageURL]);
 
   /**
@@ -91,23 +135,34 @@ const usePokemon = (initialLimit = 50) => {
    */
   useEffect(() => {
     const controller = new AbortController();
+    currentRequestRef.current = controller;
+    
     startTransition(() => {
-      fetchPokemon("pokemon", initialLimit,undefined,controller.signal)
+      fetchPokemon("pokemon", initialLimit, undefined, controller.signal)
         .then(
           async (response: any) => {
-            if (response && response.data) {
+            if (response && response.data && !controller.signal.aborted) {
               const { next, previous, results } = response.data;
               setNextPageURL(next);
               setPrevPageURL(previous);
-              await getPokemon(results);
-            } else {
+              await getPokemon(results, controller.signal);
+            } else if (!controller.signal.aborted) {
               setBroken(true);
             }
           }
         )
-        .catch((error: any) => console.error(error));
+        .catch((error: any) => {
+          if (error.name !== 'AbortError' && error.code !== 'ERR_CANCELED') {
+            console.error('Initial fetch error:', error);
+            setBroken(true);
+          }
+        });
     });
-    return ()=> controller.abort();
+    
+    return () => {
+      controller.abort();
+      currentRequestRef.current = null;
+    };
   }, [initialLimit, getPokemon]);
 
   // Return clean API

@@ -18,21 +18,28 @@ export const fetchPokemon = async (
   url: string,
   limit?: number,
   offset?: number,
-  signal?: any
-):Promise<PokemonAPIResponse> => {
+  signal?: AbortSignal
+): Promise<PokemonAPIResponse> => {
   try {
-    const resp = await axios
-    .get(url, {
-          params: {
-            limit: limit,
-            offset: offset,
-          },
-          signal: signal
-        })
+    const resp = await axios.get(url, {
+      params: {
+        limit: limit,
+        offset: offset,
+      },
+      signal: signal
+    });
         
-      return resp as unknown as PokemonAPIResponse;
+    return resp as unknown as PokemonAPIResponse;
       
-  } catch (error){
-    return error as unknown as PokemonAPIResponse;;
+  } catch (error: any) {
+    // Handle abort specifically
+    if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
+      console.log('Request was aborted');
+      throw error; // Re-throw abort errors so they can be handled upstream
+    }
+    
+    // For other errors, return as before but with proper error structure
+    console.error('API Error:', error);
+    throw error; // Changed from return to throw for better error handling
   }
 };
