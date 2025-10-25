@@ -3,6 +3,7 @@ import "./sideDrawer.sass";
 import Broken from "../brokenScreen/brokenScreen";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import { SideDrawerProps } from "./interfaces";
+import { memo } from "react";
 
 function SlideDrawer(props: SideDrawerProps) {
   const { show, selectedPokemon } = props;
@@ -92,4 +93,4 @@ function SlideDrawer(props: SideDrawerProps) {
   );
 }
 
-export default SlideDrawer;
+export default memo(SlideDrawer);
