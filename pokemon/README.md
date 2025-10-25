@@ -18,3 +18,10 @@ PUBLIC URL USED: https://pokeapi.co/
 
 ## Favicon
 favicon is pokeball logo (Generated online)
+
+
+## Features 
+1. Has suspense, lazyloading, abortcontroller, customhook, promise fetch, memoization, performance component. 
+
+## Improvements
+1. I can see why the content isn't updating fast enough in slow 3G or slow 4G network. Need to see what is the FCP.
