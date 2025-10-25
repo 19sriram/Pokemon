@@ -25,3 +25,4 @@ favicon is pokeball logo (Generated online)
 
 ## Improvements
 1. I can see why the content isn't updating fast enough in slow 3G or slow 4G network. Need to see what is the FCP.
+2. Need to change it to vite pretty soon but I can live with CRA for now.
