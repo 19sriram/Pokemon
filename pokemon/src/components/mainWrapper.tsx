@@ -16,9 +16,10 @@ interface Pokemon {
 const MemoizedHeader = React.memo(HeaderComponent);
 
 const MainWrapper=()=> {
-  // Use the custom hook
+  // custom hook 
   const {
     pokemonList,
+    filteredList,
     isLoading,
     error: broken,
     nextPageURL,
@@ -26,8 +27,10 @@ const MainWrapper=()=> {
     hasNextPage,
     hasPrevPage,
     goNext,
-    goPrevious
+    goPrevious,
+    changeHandler
   } = usePokemon();
+  
 
   // Only local UI state remains
   const [selectedPokemon, setSelectedPokemon] = useState([] as any);
@@ -70,11 +73,12 @@ const MainWrapper=()=> {
       getPrevious={goPrevious}
       getNext={goNext}
       drawerOpen={drawerOpen}
+      changeHandler={changeHandler}
     />
         <Row className="mainRow">
           <Fragment>
             {
-              // broken && <Broken />
+              broken && <Broken />
             }
           </Fragment>
           <Fragment>
@@ -96,7 +100,7 @@ const MainWrapper=()=> {
             </Suspense>
             <Suspense fallback={<Loader />}>
               {
-                !isLoading && <PokemonCard allPokemonList={pokemonList} onPokemonSelect={onPokemonSelect} />
+                !isLoading && <PokemonCard allPokemonList={filteredList} onPokemonSelect={onPokemonSelect} />
               }
             </Suspense>
           </Fragment>

@@ -6,4 +6,5 @@ export interface HeaderProps {
   nextPageURL: string;
   getNext: React.MouseEventHandler<HTMLButtonElement>;
   drawerOpen: boolean;
+  changeHandler: (e: React.FormEvent<HTMLInputElement>) => void;
 }

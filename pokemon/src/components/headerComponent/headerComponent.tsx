@@ -2,9 +2,11 @@ import { Button, Container, Nav, Navbar } from "react-bootstrap";
 import { pokemonLogo } from "../common/const";
 import { HeaderProps } from "./interface";
 import { memo } from "react";
+
 // import { memo } from "react";
 
 function HeaderComponent(props: HeaderProps) {
+
   const {
     isLoading,
     broken,
@@ -13,27 +15,21 @@ function HeaderComponent(props: HeaderProps) {
     nextPageURL,
     getNext,
     drawerOpen,
+    changeHandler,
   } = props;
 
-  // const LogoComponent = () => (
-  //     <Navbar.Brand>
-  //     <div>
-  //       <img loading="lazy" srcSet={pokemonLogo} width="100px" alt="pokemon-logo" />
-  //     </div>
-  //   </Navbar.Brand>
-  //   );
 
-  //const MemoLogoComponent = memo(LogoComponent);
-//  console.log('loading header..')
   return (
     <Navbar bg="light" expand="lg" sticky="top" className="controllers">
       <Container>
-        {/* <MemoLogoComponent /> */}
       <Navbar.Brand>
       <div>
         <img loading="lazy" srcSet={pokemonLogo} width="100px" alt="pokemon-logo" />
       </div>
     </Navbar.Brand>
+    <Nav style={{display:'inline'}}>
+      <input type="text" name="pokemon_search" onChange={(e)=>changeHandler(e)} placeholder="type to search pokemon" />
+    </Nav>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav"></Navbar.Collapse>
         <Nav style={{ display: "inline" }}>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useTransition, useRef } from "react";
 import { fetchPokemon } from "../common/api";
+import useDebounce from "./useDebounce";
 
 interface Pokemon {
   name: string;
@@ -25,13 +26,36 @@ interface Pokemon {
 const usePokemon = (initialLimit = 50) => {
   // State from mainWrapper
   const [allPokemonList, setAllPokemonList] = useState<Pokemon[]>([]);
+  const [filteredList, setFilteredList] = useState<Pokemon[]>([]);
   const [broken, setBroken] = useState(false);
   const [nextPageURL, setNextPageURL] = useState("");
   const [prevPageURL, setPrevPageURL] = useState("");
   const [isLoading, startTransition] = useTransition();
-
+  const [searchText,setSearchText] = useState('');
+  const debouncedSearchText = useDebounce(searchText, 300); 
   // Keep track of current request controller
   const currentRequestRef = useRef<AbortController | null>(null);
+
+
+  const changeHandler = useCallback((e: React.FormEvent<HTMLInputElement>) => {
+  setSearchText(e.currentTarget.value); // only update input
+}, []);
+
+useEffect(() => {
+  if (!allPokemonList.length) return;
+
+  const lower = debouncedSearchText.toLowerCase();
+  const filtered = lower
+    ? allPokemonList.filter(p => p.name.toLowerCase().includes(lower))
+    : allPokemonList;
+
+  setFilteredList(filtered);
+}, [debouncedSearchText, allPokemonList]);
+
+  useEffect(() => {
+    setFilteredList(allPokemonList);
+  }, [allPokemonList])
+
 
   /**
    * Get individual Pokemon details
@@ -56,7 +80,7 @@ const usePokemon = (initialLimit = 50) => {
 
           const _pokemonObject: any = await Promise.all(_pokemonPromises);
           const filteredResults = _pokemonObject.filter((item: any) => item !== null);
-          
+
           // Only update state if request wasn't aborted
           if (!signal?.aborted) {
             setAllPokemonList(filteredResults);
@@ -97,11 +121,11 @@ const usePokemon = (initialLimit = 50) => {
     if (currentRequestRef.current) {
       currentRequestRef.current.abort();
     }
-    
+
     // Create new controller for this request
     const controller = new AbortController();
     currentRequestRef.current = controller;
-    
+
     try {
       await fetchPage(nextPageURL, controller.signal);
     } catch (error: any) {
@@ -116,11 +140,11 @@ const usePokemon = (initialLimit = 50) => {
     if (currentRequestRef.current) {
       currentRequestRef.current.abort();
     }
-    
+
     // Create new controller for this request
     const controller = new AbortController();
     currentRequestRef.current = controller;
-    
+
     try {
       await fetchPage(prevPageURL, controller.signal);
     } catch (error: any) {
@@ -136,7 +160,7 @@ const usePokemon = (initialLimit = 50) => {
   useEffect(() => {
     const controller = new AbortController();
     currentRequestRef.current = controller;
-    
+
     startTransition(() => {
       fetchPokemon("pokemon", initialLimit, undefined, controller.signal)
         .then(
@@ -158,16 +182,16 @@ const usePokemon = (initialLimit = 50) => {
           }
         });
     });
-    
+
     return () => {
       controller.abort();
       currentRequestRef.current = null;
     };
   }, [initialLimit, getPokemon]);
 
-  // Return clean API
   return {
     pokemonList: allPokemonList,
+    filteredList,
     isLoading,
     error: broken,
     nextPageURL,
@@ -175,7 +199,8 @@ const usePokemon = (initialLimit = 50) => {
     hasNextPage: !!nextPageURL,
     hasPrevPage: !!prevPageURL,
     goNext: getNext,
-    goPrevious: getPrevious
+    goPrevious: getPrevious,
+    changeHandler
   };
 };
 

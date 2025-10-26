@@ -10,7 +10,6 @@ function onRenderCallback(
   baseDuration:number,
   startTime:number,
   commitTime:number,
-  interactions:any,
 ) {
   //console.log(id,phase, actualDuration)
 }
