@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useTransition, useRef } from "react";
+import { useState, useEffect, useCallback, useTransition, useRef, useMemo } from "react";
 import { fetchPokemon } from "../common/api";
 import useDebounce from "./useDebounce";
-
+import { throttle } from "lodash-es";
 interface Pokemon {
   name: string;
   id: number;
@@ -116,7 +116,7 @@ useEffect(() => {
   /**
    * Navigation functions with abort controller support
    */
-  const getNext = useCallback(async () => {
+  const handleNext = useCallback(async () => {
     // Abort any previous request
     if (currentRequestRef.current) {
       currentRequestRef.current.abort();
@@ -134,6 +134,9 @@ useEffect(() => {
       }
     }
   }, [fetchPage, nextPageURL]);
+
+  const getNext = useMemo(() => throttle(handleNext, 2000), [handleNext]);
+
 
   const getPrevious = useCallback(async () => {
     // Abort any previous request
