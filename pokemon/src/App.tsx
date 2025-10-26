@@ -18,8 +18,8 @@ function App() {
   return (
     <Profiler id="app" onRender={onRenderCallback}>
     <>
-      <MainWrapper/>
-      {/* <FormWrapper/> */}
+      {/* <MainWrapper/> */}
+      <FormWrapper/>
     </>
     </Profiler>
     );
