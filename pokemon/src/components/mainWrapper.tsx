@@ -15,7 +15,7 @@ interface Pokemon {
 }
 const MemoizedHeader = React.memo(HeaderComponent);
 
-const MainWrapper=()=> {
+const MainWrapper = () => {
   // custom hook 
   const {
     pokemonList,
@@ -30,11 +30,12 @@ const MainWrapper=()=> {
     goPrevious,
     changeHandler
   } = usePokemon();
-  
+
 
   // Only local UI state remains
   const [selectedPokemon, setSelectedPokemon] = useState([] as any);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [placeholder,setPlaceholder] = useState([] as any);
 
   // Close drawer when loading starts
   useEffect(() => {
@@ -56,57 +57,80 @@ const MainWrapper=()=> {
     setDrawerOpen(!drawerOpen);
   }, [pokemonList, drawerOpen]);
 
-  
+  useEffect(() => {
+(async () => {
+    const id = 6;
+    const todoPromises = [];
+
+    for (let i = 1; i < id; i++) {
+      todoPromises.push(fetch(`https://jsonplaceholder.typicode.com/todos/${i}`).then(res => res.json()));
+    }
+
+    try {
+      const results = await Promise.all(todoPromises);
+      console.log('done',results);
+      if(results) {
+        setPlaceholder([...results]);
+      }
+      
+    } catch (err) {
+      console.error(err);
+    }
+  })();  
+}, []);
   // const MemoizedHeader = useMemo(() => (
-    
+
   // ), [isLoading, broken, prevPageURL, nextPageURL, getPrevious, getNext, drawerOpen]);
-
+  console.log(placeholder)
   return (
-    <div className="mainWrapper">
-      <Container fluid>
+    // <div className="mainWrapper">
+    //   <Container fluid>
 
-        <MemoizedHeader
-      isLoading={isLoading}
-      broken={broken}
-      prevPageURL={prevPageURL}
-      nextPageURL={nextPageURL}
-      getPrevious={goPrevious}
-      getNext={goNext}
-      drawerOpen={drawerOpen}
-      changeHandler={changeHandler}
-    />
-        <Row className="mainRow">
-          <Fragment>
-            {
-              broken && <Broken />
-            }
-          </Fragment>
-          <Fragment>
-            {
-              isLoading && <Loader />
-            }
-          </Fragment>
-          <Fragment>
-            <Suspense fallback={<Loader />}>
-              <SlideDrawer
-                show={drawerOpen}
-                selectedPokemon={selectedPokemon[0] || []}
-              />
-              <div
-                id="backdrop"
-                style={{ display: drawerOpen ? "block" : "none" }}
-                onClick={() => setDrawerOpen(false)}
-              />
-            </Suspense>
-            <Suspense fallback={<Loader />}>
-              {
-                !isLoading && <PokemonCard allPokemonList={filteredList} onPokemonSelect={onPokemonSelect} />
-              }
-            </Suspense>
-          </Fragment>
-        </Row>
-      </Container>
-    </div>
+    //     <MemoizedHeader
+    //       isLoading={isLoading}
+    //       broken={broken}
+    //       prevPageURL={prevPageURL}
+    //       nextPageURL={nextPageURL}
+    //       getPrevious={goPrevious}
+    //       getNext={goNext}
+    //       drawerOpen={drawerOpen}
+    //       changeHandler={changeHandler}
+    //     />
+    //     <Row className="mainRow">
+    //       <Fragment>
+    //         {
+    //           broken && <Broken />
+    //         }
+    //       </Fragment>
+    //       <Fragment>
+    //         {
+    //           isLoading && <Loader />
+    //         }
+    //       </Fragment>
+    //       <Fragment>
+    //         <Suspense fallback={<Loader />}>
+    //           <SlideDrawer
+    //             show={drawerOpen}
+    //             selectedPokemon={selectedPokemon[0] || []}
+    //           />
+    //           <div
+    //             id="backdrop"
+    //             style={{ display: drawerOpen ? "block" : "none" }}
+    //             onClick={() => setDrawerOpen(false)}
+    //           />
+    //         </Suspense>
+    //         <Suspense fallback={<Loader />}>
+    //           {
+    //             !isLoading && <PokemonCard allPokemonList={filteredList} onPokemonSelect={onPokemonSelect} />
+    //           }
+    //         </Suspense>
+    //       </Fragment>
+    //     </Row>
+    //   </Container>
+    // </div>
+    placeholder.map((i: {
+      title: any; userId: any; 
+})=>i.title)
   );
 }
 export default MainWrapper;
