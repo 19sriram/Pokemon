@@ -1,6 +1,7 @@
 import { Profiler } from "react";
 import MainWrapper from "./components/mainWrapper";
 import FormWrapper from "./components/formWrapper";
+import TodoListComponent from "./todoComponents/todoComponent";
 
 
 function onRenderCallback(
@@ -19,7 +20,9 @@ function App() {
     <Profiler id="app" onRender={onRenderCallback}>
     <>
       {/* <MainWrapper/> */}
-      <FormWrapper/>
+      {/* <FormWrapper/> */}
+      <TodoListComponent/>
+      
     </>
     </Profiler>
     );
