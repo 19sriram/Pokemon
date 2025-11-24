@@ -1,15 +1,19 @@
 import { useState, useEffect, Fragment } from "react";
-import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
-import Loader from "./loader/loader";
-import HeaderComponent from "../components/headerComponent/headerComponent";
-import Broken from "./brokenScreen/brokenScreen";
+
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import HeaderComponent from "./headerComponent";
+
+import SlideDrawerComponent from "./slideDrawerComponent";
+import LoaderComponent from './loaderComponent';
+
+import BrokenScreenComponent from './brokenScreenComponent';
 import { fetchPokemonData } from "./common/api";
-import SlideDrawer from "./sideDrawer/sideDrawer";
+import "./styles/pokemonWrapper.scss";
 
-import "./mainWrapper.scss";
+import { IPokemon } from './interfaces';
 
-export default function MainWrapper() {
+const PokemonWrapperComponent = () => {
   const [allPokemonList, setAllPokemonList] = useState([] as any);
   const [broken, setBroken] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -18,108 +22,81 @@ export default function MainWrapper() {
   const [prevPageURL, setPrevPageURL] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  /**
-   * Initial Fetch
-   * Fetches data as per url, limit and offset
-   * {url: string, limit: number, offset: number}
-   * fetchData(url,limit, offset)
-   */
 
-  const fetchData = (url: string, limit?: number, offset?: number) => {
+
+
+  const fetchData = async (url: string, limit?: number, offset?: number) => {
     try {
       setIsLoading(true);
-      return fetchPokemonData(url, limit, offset);
+      return await fetchPokemonData(url, limit, offset);
     } catch (err) {
       console.error(err);
       return err;
     }
   };
 
-  /**
-   *
-   * @param pokemonData : Pokemon list with name and image from intial fetch
-   */
-  const getPokemon = async (pokemonData: string[]) => {
+
+  const getPokemon = async (pokemonData: IPokemon[]) => {
     setIsLoading(true);
     let _pokemonObject = await Promise.all(
-      pokemonData.map(async (pokemon: any) => {
-        return fetchData(pokemon.url)
-          .then((resp: { data: [] }) => resp.data)
-          .catch((error: any) => console.error(error));
+      pokemonData.map(async (pokemon: IPokemon) => {
+        const result = await fetchData(pokemon.url);
+        return (result as any)?.data || null;
       })
     );
     setAllPokemonList(_pokemonObject);
     setIsLoading(false);
   };
 
-  /**
-   * Initial Fetch
-   * Fetches 50 records as initial fetch
-   */
-
   useEffect(() => {
-    setIsLoading(true);
-    fetchData("pokemon", 50)
-      .then(
-        async (response: {
-          data: { next: string; previous: string; results: [] };
-        }) => {
-          if (response && response.data) {
-            setNextPageURL(response.data.next);
-            setPrevPageURL(response.data.previous);
-            await getPokemon(response.data.results);
-          } else {
-            setIsLoading(false);
-            setBroken(true);
-          }
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetchData("pokemon", 50);
+        if (response && (response as any).data) {
+          setNextPageURL((response as any).data.next);
+          setPrevPageURL((response as any).data.previous);
+          await getPokemon((response as any).data.results);
+        } else {
+          setIsLoading(false);
+          setBroken(true);
         }
-      )
-      .catch((error: any) => console.error(error));
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+        setBroken(true);
+      }
+    };
+    loadInitialData();
   }, []);
 
-  /**
-   * Get next url from initial fetch
-   */
   const getNext = async () => {
-    await fetchData(nextPageURL)
-      .then(
-        async (resp: {
-          data: { next: string; previous: string; results: [] };
-        }) => {
-          if (resp.data) {
-            setNextPageURL(resp.data.next);
-            setPrevPageURL(resp.data.previous);
-            await getPokemon(resp.data.results);
-          }
-        }
-      )
-      .catch((error: any) => console.error(error));
+    try {
+      const resp = await fetchData(nextPageURL);
+      if ((resp as any).data) {
+        setNextPageURL((resp as any).data.next);
+        setPrevPageURL((resp as any).data.previous);
+        await getPokemon((resp as any).data.results);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  /**
-   * Get previous url from intial fetch
-   */
   const getPrevious = async () => {
-    await fetchData(prevPageURL)
-      .then(
-        async (resp: {
-          data: { next: string; previous: string; results: [] };
-        }) => {
-          if (resp.data) {
-            setNextPageURL(resp.data.next);
-            setPrevPageURL(resp.data.previous);
-            await getPokemon(resp.data.results);
-          }
-        }
-      )
-      .catch((error: any) => console.error(error));
+    try {
+      const resp = await fetchData(prevPageURL);
+      if ((resp as any).data) {
+        setNextPageURL((resp as any).data.next);
+        setPrevPageURL((resp as any).data.previous);
+        await getPokemon((resp as any).data.results);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  /**
-   *
-   * @param e :Event
-   * Sets selected pokemon value from AllPokemonList
-   */
+
   const onPokemonSelect = (e: any) => {
     let _selectedPokemon = allPokemonList.filter(
       (item: { name: string }) => item.name === e.target.id
@@ -141,13 +118,14 @@ export default function MainWrapper() {
           drawerOpen={drawerOpen}
         />
         <Row className="mainRow">
-          {!broken ? (
+          {broken && <BrokenScreenComponent />}
+          {!broken && (
             <Fragment>
               {isLoading ? (
-                <Loader />
+                <LoaderComponent />
               ) : (
                 <Fragment>
-                  <SlideDrawer
+                  <SlideDrawerComponent
                     show={drawerOpen}
                     selectedPokemon={selectedPokemon[0] || []}
                   />
@@ -191,11 +169,11 @@ export default function MainWrapper() {
                 </Fragment>
               )}
             </Fragment>
-          ) : (
-            <Broken />
           )}
         </Row>
       </Container>
     </div>
   );
 }
+
+export default PokemonWrapperComponent;

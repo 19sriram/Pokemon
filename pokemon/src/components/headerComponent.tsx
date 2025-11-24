@@ -1,6 +1,6 @@
 import { Button, Container, Nav, Navbar } from "react-bootstrap";
-import { pokemonLogo } from "../common/const";
-import { HeaderProps } from "./interface";
+import { pokemonLogo } from './common/const';
+import { HeaderProps } from './interfaces';
 
 function HeaderComponent(props: HeaderProps) {
   const {

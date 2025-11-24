@@ -1,10 +1,11 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import "./sideDrawer.scss";
-import Broken from "../brokenScreen/brokenScreen";
+import Broken from "./brokenScreenComponent";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import { SideDrawerProps } from "./interfaces";
 
-export default function SlideDrawer(props: SideDrawerProps) {
+import "./sideDrawer.scss";
+
+const SlideDrawerComponent = (props: SideDrawerProps) => {
   const { show, selectedPokemon } = props;
   let drawerClasses = show ? "side-drawer open" : "side-drawer";
 
@@ -90,3 +91,5 @@ export default function SlideDrawer(props: SideDrawerProps) {
     </div>
   );
 }
+
+export default SlideDrawerComponent;

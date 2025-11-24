@@ -1,0 +1,27 @@
+# Dependencies
+node_modules
+
+# Production builds
+build
+dist
+
+# Coverage directory
+coverage
+
+# Logs
+*.log
+
+# Package manager files
+package-lock.json
+yarn.lock
+
+# Environment files
+.env*
+
+# IDE files
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db

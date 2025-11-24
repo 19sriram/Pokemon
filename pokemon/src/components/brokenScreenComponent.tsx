@@ -1,7 +1,7 @@
-import { brokenImageSource } from "../common/const";
+import { brokenImageSource } from "./common/const";
 import "./brokenScreen.scss";
 
-export default function Broken() {
+const BrokenScreenComponent = () => {
   return (
     <div className="brokenWrapper">
       <img src={brokenImageSource} alt="something is broken" />
@@ -9,3 +9,5 @@ export default function Broken() {
     </div>
   );
 }
+
+export default BrokenScreenComponent;

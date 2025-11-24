@@ -3,7 +3,7 @@ import * as React from "react";
 import { fetchPokemonData } from "../common/api";
 import { allPokemonData } from "../__mocks__/mockData";
 import mockAxios from "../__mocks__/axios";
-import MainWrapper from "../mainWrapper";
+import MainWrapper from "../pokemonWrapperComponent";
 import { act } from "react-dom/test-utils";
 
 global.fetch = jest.fn(() => {

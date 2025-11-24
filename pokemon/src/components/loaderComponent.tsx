@@ -1,7 +1,6 @@
-import "./loader.scss";
+import "./loaderComponent.scss";
 
-export default function Loader() {
-  return (
+const LoaderComponent=()=> (
     <div className="center-on-page">
        <h2>Loading...</h2>
       <div className="pokeball">
@@ -9,4 +8,5 @@ export default function Loader() {
       </div>
     </div>
   );
-}
+
+export default LoaderComponent;

@@ -1,4 +1,4 @@
-import SlideDrawer from "../sideDrawer/sideDrawer";
+import SlideDrawer from "../slideDrawerComponent";
 import { mount } from "enzyme";
 import { pokemonMockData } from "../__mocks__/mockData";
 let wrapper;
