@@ -1,5 +1,5 @@
 import { brokenImageSource } from "./common/const";
-import "./brokenScreen.scss";
+import "./styles/brokenScreen.scss";
 
 const BrokenScreenComponent = () => {
   return (

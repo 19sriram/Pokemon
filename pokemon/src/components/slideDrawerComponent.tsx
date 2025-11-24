@@ -3,7 +3,7 @@ import Broken from "./brokenScreenComponent";
 import { Col, Container, Form, Row } from "react-bootstrap";
 import { SideDrawerProps } from "./interfaces";
 
-import "./sideDrawer.scss";
+import "./styles/sideDrawer.scss";
 
 const SlideDrawerComponent = (props: SideDrawerProps) => {
   const { show, selectedPokemon } = props;

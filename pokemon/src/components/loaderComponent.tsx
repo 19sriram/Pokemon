@@ -1,4 +1,4 @@
-import "./loaderComponent.scss";
+import "./styles/loaderComponent.scss";
 
 const LoaderComponent=()=> (
     <div className="center-on-page">

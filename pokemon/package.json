@@ -14,16 +14,17 @@
     "bootstrap": "^5.0.2",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
-    "node-sass": "4.14.1",
     "react": "^16.14.0",
     "react-bootstrap": "^2.0.0-beta.4",
     "react-dom": "^16.14.0",
     "react-lazy-load-image-component": "^1.5.1",
-    "react-scripts": "4.0.3",
+    "react-scripts": "5",
+    "sass": "^1.94.2",
     "typescript": "^4.3.5",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -51,7 +52,11 @@
     ]
   },
   "devDependencies": {
-    "@types/react-lazy-load-image-component": "^1.5.2"
+    "@types/react-lazy-load-image-component": "^1.5.2",
+    "husky": "^9.1.7"
+  },
+  "resolutions": {
+    "postcss": "^8.4.31"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
