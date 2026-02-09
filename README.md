@@ -1,3 +1,5 @@
+## Note: It's still in reactv16 and I am trying to find time to work on this lovable fun app. I am not actively maintaining it and my coding styles have changed 
+
 # Pokemon APP
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
